@@ -1,64 +1,80 @@
+// #include <BigNumber.h>
+
 // Constants
-const int ledPin = 13;  // Digital pin connected to the LED
-const int irLedPin = 14;
-const int s1pin = A1;   // BPV22NF. Phototransistor. Raman Spectroscopy.
-const int s2pin = A2;   // TMP36. Temperature.
-const int s3pin = A3;   // BPW34. Photodiode. Optical Coherence tomography.
-const int s4pin = A4;
+const int d01 = 0;
+const int d02 = 2;  //LM35 button
+const int d03 = 3;
+const int d04 = 4;  //KY-039 button
+const int d05 = 5;
+const int d06 = 6;
+const int d07 = 7;  //KY-039 LED
+const int d08 = 8;  //LM35 LED
+
+const int a00 = A0;
+const int a01 = A1;
+const int a02 = A2; //LM35
+const int a03 = A3;
+const int a04 = A4; //KY-039
+const int a05 = A5;
 
 // Variables
-int s1RawValue = 0;       // Variable to store the sensor reading
-int s2RawValue = 0;
-int s3RawValue = 0;
-int s4RawValue = 0;
-float temperature = 0.0;  // Variable to store the temperature value in Celsius
+int a02Raw = 0;
+int a04Raw = 0;
+double temperature;  // Variable to store the temperature value in Celsius
+double areaundercurve;
+int lm35Button;
+int ky039Button;
+int tempCounter = 0;
+int irCounter = 0;
 
 void setup() {
-  pinMode(ledPin, OUTPUT);  // Set the LED pin as an output
+  pinMode(d02, INPUT);
+  pinMode(d04, INPUT);
+  pinMode(d07, OUTPUT);
+  pinMode(d08, OUTPUT);
   Serial.begin(9600);       // Initialize serial communication for debugging
-  digitalWrite(irLedPin, HIGH);  // turn the LED on (HIGH is the voltage level)
-
 }
 
 void loop() {
 
-  // s1RawValue = analogRead(s1pin);
-  // // Convert the analog reading (which goes from 0 - 1023) to a voltage (0 - 5V):
-  // float s1Voltage = s1RawValue * (5.0 / 1024.0);
-  // Serial.print("BPV22NF raw value: ");
-  // Serial.print(s1RawValue);
-  // Serial.print(" Voltage: ");
-  // Serial.println(s1Voltage);
+  lm35Button = digitalRead(d02);
+  ky039Button = digitalRead(d04);
+  Serial.print("lm35Button: ");
+  Serial.println(lm35Button);
+  
+  if(lm35Button == 1){
+    digitalWrite(d08, HIGH);
+    tempCounter++;
+  } else {
+    digitalWrite(d08, LOW);
+    tempCounter = 0;
+  }
 
-  // s1RawValue = analogRead(s2pin);           //read the analog sensor and store it
-  // temperature = (double)s1RawValue / 1024;  //find percentage of input reading
-  // temperature = temperature * 5;            //multiply by 5V to get voltage
-  // temperature = (temperature - 0.5);        //Subtract the offset
-  // temperature = temperature * 100;          //Convert to degrees
-  // Serial.print("TMP36 raw value: ");
-  // Serial.print(s1RawValue);
-  // Serial.print(" volt. Current Temperature: ");
-  // Serial.println(temperature);
+  if(ky039Button == 1){
+    digitalWrite(d07, HIGH);
+    irCounter++;
+  } else {
+    digitalWrite(d07, LOW);
+    irCounter = 0;
+  }
 
-  // s3RawValue = analogRead(s3pin);
-  // // Convert the analog reading (which goes from 0 - 1023) to a voltage (0 - 5V):
-  // float s3Voltage = s3RawValue * (5.0 / 1024.0);
-  // Serial.print("BPW34 raw value: ");
-  // Serial.print(s3RawValue);
-  // Serial.print(" Voltage: ");
-  // Serial.println(s3Voltage);
+  a02Raw = analogRead(a02);           //read the analog sensor and store it
+  temperature = (double)a02Raw / 1024;  //find percentage of input reading
+  temperature = temperature * 5;            //multiply by 5V to get voltage
+  temperature = (temperature - 0.5);        //Subtract the offset
+  temperature = temperature * 100;          //Convert to degrees
+  Serial.print("LM35 raw value: ");
+  Serial.print(a02Raw);
+  Serial.print(" volt. Current Temperature: ");
+  Serial.println(temperature);
 
-
-  s4RawValue = analogRead(s4pin);
   // Convert the analog reading (which goes from 0 - 1023) to a voltage (0 - 5V):
-  float s4Voltage = s4RawValue * (5.0 / 1024.0);
+  a04Raw = analogRead(a04);
+  float s4Voltage = a04Raw * (5.0 / 1024.0);
   Serial.print("IR LED raw value: ");
-  Serial.print(s4RawValue);
+  Serial.print(a04Raw);
   Serial.print(" Voltage: ");
   Serial.println(s4Voltage);
 
-  digitalWrite(ledPin, HIGH);  // turn the LED on (HIGH is the voltage level)
-  delay(1000);                      // wait for a second
-  digitalWrite(ledPin, LOW);   // turn the LED off by making the voltage LOW
   delay(1000);
 }
